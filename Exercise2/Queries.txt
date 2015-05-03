@@ -1,0 +1,28 @@
+1. SELECT DISTINCT ap.number FROM airplanes ap, airlines_has_airplanes aa, airlines al WHERE ap.manufacturer='Boeing' AND ap.id=aa.airplanes_id AND al.id=aa.airlines_id AND al.name='British Airways';
+
+
+2. SELECT DISTINCT al.name FROM airlines al, airports ports1, routes r, airports ports2 WHERE al.id = r.airlines_id AND r.source_id = ports1.id AND ports1.city = 'Athens' AND r.destination_id = ports2.id AND ports2.city = 'London';
+
+
+3. SELECT COUNT(DISTINCT p.id) AS number FROM passengers p, flights_has_passengers fp, routes r, airlines al, flights f WHERE fp.passengers_id = p.id AND fp.flights_id = f.id AND f.date = '2012-02-19' AND f.routes_id = r.id AND r.airlines_id = al.id AND al.name = 'Aegean Airlines';
+
+
+4. (SELECT DISTINCT 'yes' AS result FROM flights f WHERE EXISTS (SELECT * FROM flights f, routes r, airports ports1, airports ports2, airlines al WHERE f.date = '2014-12-12' AND r.id = f.routes_id AND r.source_id = ports1.id AND ports1.name = 'Athens El. Venizelos' AND r.destination_id = ports2.id AND ports2.name = 'London Gatwick' AND r.airlines_id = al.id AND al.name = 'Olympic Airways')) UNION (SELECT DISTINCT 'no' AS result FROM flights f WHERE NOT EXISTS (SELECT * FROM flights f, routes r, airports ports1, airports ports2, airlines al WHERE f.date = '2014-12-12' AND r.id = f.routes_id AND r.source_id = ports1.id AND ports1.name = 'Athens El. Venizelos' AND r.destination_id = ports2.id AND ports2.name = 'London Gatwick' AND r.airlines_id = al.id AND al.name = 'Olympic Airways')) ;
+
+
+5. SELECT AVG(2015-p.year_of_birth) AS age FROM passengers p WHERE p.id in (SELECT DISTINCT p.id FROM passengers p, flights_has_passengers fp, flights f, routes r, airports ports WHERE p.id = fp.passengers_id AND f.id = fp.flights_id AND r.id = f.routes_id AND r.destination_id = ports.id AND ports.city = 'Athens');
+
+
+6. SELECT DISTINCT p.name, p.surname FROM passengers p, flights f1, flights_has_passengers fp1 WHERE p.id = fp1.passengers_id AND fp1.flight_id = f1.id AND NOT EXISTS(SELECT * FROM flights f2, flights_has_passengers fp2 WHERE p.id = fp2.passengers_id AND fp2.flights_id = f2.id AND f2.airplanes_id <> f1.airplanes_id);
+
+
+7. SELECT DISTINCT ports1.city, ports2.city FROM airports ports1, airports ports2, routes r, flights f WHERE ports1.id = r.source_id AND ports2.id = r.destination_id AND f.routes_id = r.id AND f.date >= '2011-02-01' AND f.date <= '2014-07-17' AND f.id IN (SELECT fp.flights_id FROM flights_has_passengers fp GROUP BY fp.flights_id HAVING count(*)>5);
+
+
+8. SELECT DISTINCT al.name, al.code, COUNT(DISTINCT r.id) as num FROM airlines al, routes r, airlines_has_airplanes aa WHERE r.airlines_id = al.id AND aa.airlines_id = al.id GROUP BY al.id HAVING COUNT(DISTINCT aa.airplanes_id)=5;
+
+
+9. SELECT DISTINCT p.name, p.surname FROM passengers p WHERE NOT EXISTS (SELECT * FROM airlines al WHERE al.active = 'Y' AND NOT EXISTS (SELECT * FROM routes r, flights f, flights_has_passengers fp WHERE r.airlines_id = al.id AND f.routes_id = r.id AND fp.flights_id = f.id AND fp.passengers_id = p.id));
+
+
+10. (SELECT DISTINCT p.name, p.surname FROM passengers p WHERE NOT EXISTS (SELECT * FROM flights_has_passengers fp, flights f, routes r, airlines al WHERE fp.passengers_id = p.id AND fp.flights_id = f.id AND f.routes_id = r.id AND r.airlines_id = al.id AND al.name <> 'British Airways') AND EXISTS (SELECT * FROM flights_has_passengers fp, flights f, routes r, airlines al WHERE fp.passengers_id = p.id AND fp.flights_id = f.id AND f.routes_id = r.id AND r.airlines_id = al.id AND al.name = 'British Airways')) UNION (SELECT DISTINCT p.name, p.surname FROM passengers p WHERE EXISTS(SELECT * FROM flights_has_passengers fp, flights f WHERE fp.passengers_id = p.id AND fp.flights_id = f.id AND f.date >= '2010-01-01' AND f.date <= '2013-12-31'  GROUP BY p.id HAVING COUNT(f.id) > 1));
