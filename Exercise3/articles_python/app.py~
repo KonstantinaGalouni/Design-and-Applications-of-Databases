@@ -1,0 +1,102 @@
+# ----- CONFIGURE YOUR EDITOR TO USE 4 SPACES PER TAB ----- #
+import settings
+import sys
+
+
+
+
+def connection():
+    ''' User this function to create your connections '''
+    import sys
+    sys.path.append(settings.MADIS_PATH)
+    import madis
+
+    con = madis.functions.Connection('ergasia3.db')
+    
+    return con
+
+def classify(pubid,topn):
+    
+
+    
+    # Create a new connection
+    con=connection()
+    list(con.cursor().execute(r"select var('pubid', ? )", (pubid,)))
+    list(con.cursor().execute(r"select var('topn', ? )", (topn,)))
+
+    query1 = '''
+        select title,class,subclass , sum(p) as p from 
+            (select title,strsplitv(summary) from arxivsummaries where id=var('pubid')), classes 
+                    where c1=term 
+        group by class,subclass order by p desc limit var('topn');  
+    ''';
+
+    query = '''
+        select id,title,class,subclass,max(p) from (select id,title,class,subclass , sum(p) as p from 
+            (select id, title,strsplitv(summary) from arxivsummaries), classes 
+                    where c1=term 
+        group by class,subclass,title) group by id order by id asc;  
+    ''';
+    
+    # Create a cursor on the connection
+    try :
+        li = list(con.cursor().execute(query))
+    except Exception, e:
+        raise Exception("Error when executing EXECUTE:\n"+query+"\nThe error was:\n"+ str(e))
+
+    
+    return [("title","class","subclass")] + li
+
+
+def classify_plain_sql(pubid,topn):
+
+    # Create a new connection
+    con=connection()
+    
+    # Create a cursor on the connection
+    cur=con.cursor()
+    
+    
+    return [("movieTitle", "colleagueOfActor1", "colleagueOfActor2", "actor1","actor2",),]
+
+def updateweight(class1,subclass,term,weight):
+    
+    # Create a new connection
+    con=connection()
+    print class1,subclass,term,weight
+    EXECUTE='''select id from arxivsummaries'''
+
+    try :
+       li = list(con.cursor().execute(EXECUTE))
+    except Exception, e:
+        raise Exception("Error when executing EXECUTE:\n"+EXECUTE+"\nThe error was:\n"+ str(e))
+    
+    
+	
+    
+    return [("actor2Id",),] + li
+    
+	
+def selectTopNauthors(class1,n):
+
+    # Create a new connection
+    print class1,n
+    con=connection()
+    
+    # Create a cursor on the connection
+    cur=con.cursor()
+    
+    print n
+    
+    return [("genreName", "actorId", "numberOfMovies"),]
+
+def traceActorInfluence(actorId):
+    # Create a new connection
+    con=connection()
+    
+    # Create a cursor on the connection
+    cur=con.cursor()
+    
+    print actorId
+    
+    return [("influencedActorId",),]

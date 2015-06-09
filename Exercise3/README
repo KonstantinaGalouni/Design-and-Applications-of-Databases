@@ -1,0 +1,12 @@
+Design And Use Of Databases 
+Spring 2014-2015
+HW3
+---
+Konstantina Galouni 	1115201000034
+Rizart Dona 			1115201000159
+#####################################
+
+Clarifications
+---------------
+	- In every query function are included value-type checks and value-existence checks.  
+	- Application is SQL-injection safe.
